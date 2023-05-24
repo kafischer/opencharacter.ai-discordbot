@@ -6,6 +6,8 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', message => {
+    if (message.author.bot) return;
+
     console.log('got message', message);
     if (message.channel.id === '1111061024645320834') {
        message.channel.send('Hello!');
