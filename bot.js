@@ -1,13 +1,12 @@
-const Discord = require('discord.js');
-const client = new Discord.Client();
+const { Client, Intents } = require('discord.js');
+const client = new Client({ intents: [Intents.FLAGS.Guilds, Intents.FLAGS.GuildMessages] });
 
 client.once('ready', () => {
     console.log('Ready!');
 });
 
-client.on('message', message => {
-    // Check if the message is in the specific channel
-    if (message.channel.id === 'testing') {
+client.on('messageCreate', message => {
+    if (message.channel.id === 'your-channel-id') {
         if (message.content === '!hello') {
             message.channel.send('Hello!');
         }
