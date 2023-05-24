@@ -1,0 +1,12 @@
+{
+  "name": "opensouls",
+  "version": "0.0.0",
+  "description": "A Discord bot that creates and manages bot profiles",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^13.1.0"
+  }
+}
