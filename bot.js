@@ -8,9 +8,7 @@ client.once('ready', () => {
 client.on('messageCreate', message => {
     console.log('got message', message);
     if (message.channel.id === 'testing') {
-        if (message.content === '!hello') {
-            message.channel.send('Hello!');
-        }
+       message.channel.send('Hello!');
     }
 });
 
