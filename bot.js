@@ -1,4 +1,4 @@
-const { Client, Intents } = require('discord.js');
+const { Client, Intents, MessageEmbed } = require('discord.js');
 const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 client.once('ready', () => {
@@ -10,7 +10,13 @@ client.on('messageCreate', message => {
 
     console.log('got message', message);
     if (message.channel.id === '1111061024645320834') {
-       message.channel.send('Hello!');
+        const embed = new MessageEmbed()
+            .setColor('#0099ff') // Set the color
+            .setTitle('New message received') // Set the title
+            .setDescription(`Message content: ${message.content}`) // Set the description
+            .setAuthor('Samantha 2.0', "https://lexica.art/prompt/369f5877-5c72-4c3a-9da6-19a8766d2657");
+
+       message.channel.send({ embeds: [embed] });
     }
 });
 
