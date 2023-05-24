@@ -6,6 +6,7 @@ client.once('ready', () => {
 });
 
 client.on('messageCreate', message => {
+    console.log('got message', message);
     if (message.channel.id === 'your-channel-id') {
         if (message.content === '!hello') {
             message.channel.send('Hello!');
