@@ -7,7 +7,7 @@ client.once('ready', () => {
 
 client.on('messageCreate', message => {
     console.log('got message', message);
-    if (message.channel.id === 'testing') {
+    if (message.channel.id === '1111061024645320834') {
        message.channel.send('Hello!');
     }
 });
