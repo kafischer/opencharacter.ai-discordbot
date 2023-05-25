@@ -83,21 +83,13 @@ client.on('messageCreate', async message => {
     // }
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099FF)
-      .setTitle('Some title')
-      .setURL('https://discord.js.org/')
-      .setAuthor({ name: 'Some name', iconURL: 'https://i.imgur.com/AfFp7pu.png', url: 'https://discord.js.org' })
-      .setDescription('Some description here')
-      .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+      .setAuthor({ name: 'Samantha 2.9', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg', url: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
+      .setDescription('Hello')
       .addFields(
-        { name: 'Regular field title', value: 'Some value here' },
-        { name: '\u200B', value: '\u200B' },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-        { name: 'Inline field title', value: 'Some value here', inline: true },
-      )
-      .addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
-      .setImage('https://i.imgur.com/AfFp7pu.png')
-      .setTimestamp()
-      .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+        { name: 'Feels', value: 'I feel ...', inline: true },
+        { name: 'Thinks', value: 'I think ...', inline: true },
+        { name: 'Reflects', value: 'In retrospect ...', inline: true },
+      );
 
     message.channel.send({ embeds: [exampleEmbed] });
   }
