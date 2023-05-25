@@ -77,7 +77,8 @@ client.on('messageCreate', async message => {
       if (profiles.has(name)) {
         currentProfile = profiles.get(name);
         await message.reply(`Profile switched to ${name}!`);
-      } else if (currentProfile) {
+      }
+      else if (currentProfile) {
         return;
       }
     }
