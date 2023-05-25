@@ -72,7 +72,7 @@ client.on('interactionCreate', async (interaction) => {
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
 
-  console.log('got message', message);
+  console.log('got message', message.content);
   if (message.channel.id === '1111061024645320834') {
     samantha.tell(message.content);
     // if (message.content.startsWith('!')) {
@@ -91,6 +91,7 @@ client.on('messageCreate', async message => {
 });
 
 samantha.on('says', message => {
+  console.warn('SEND MESSAGE');
   const exampleEmbed = new EmbedBuilder()
     .setColor(0x0099FF)
     .setAuthor({ name: 'Samantha', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
