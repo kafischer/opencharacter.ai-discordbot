@@ -13,7 +13,6 @@ const client = new Client({
 const channelId = '1111061024645320834';
 
 const profiles = new Map();
-let currentProfile = null;
 
 client.once('ready', async () => {
   console.log('Ready!');
