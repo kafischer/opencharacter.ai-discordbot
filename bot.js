@@ -175,6 +175,7 @@ client.on('messageCreate', async message => {
   if (message.author.bot) return;
 
   console.log('got message', message.content, message.type);
+  if (message.mentions.users.size > 0) return;
   if (Object.keys(channelToSoul).includes(message.channel.id) && message.type === DEFAULT_MSG) {
     message.channel.sendTyping();
     channelToSoul[message.channel.id].soul.tell(`${message.author.username} says ${message.content}`);
