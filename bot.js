@@ -91,7 +91,7 @@ client.on('messageCreate', async message => {
 });
 
 samantha.on('says', message => {
-  console.warn('SEND MESSAGE');
+  console.warn('SEND MESSAGE', message);
   const exampleEmbed = new EmbedBuilder()
     .setColor(0x0099FF)
     .setAuthor({ name: 'Samantha', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
