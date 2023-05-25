@@ -12,6 +12,7 @@ const client = new Client({
 });
 const channelId = '1111061024645320834';
 
+
 const profiles = new Map();
 
 client.once('ready', async () => {
