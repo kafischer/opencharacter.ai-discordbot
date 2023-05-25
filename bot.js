@@ -12,8 +12,6 @@ let currentProfile = null;
 
 client.once('ready', async () => {
   console.log('Ready!');
-  await client.user.setUsername('Open Souls');
-  await client.user.setAvatar(client.user.displayAvatarURL());
 
   // Define a new global slash command
   client.application.commands.create({
@@ -22,25 +20,25 @@ client.once('ready', async () => {
     options: [
       {
         name: 'name',
-        type: 'STRING',
+        type: 3,
         description: 'The name of the bot profile',
         required: true,
       },
       {
         name: 'essence',
-        type: 'STRING',
+        type: 3,
         description: 'The essence of the bot profile',
         required: true,
       },
       {
         name: 'personality',
-        type: 'STRING',
+        type: 3,
         description: 'The personality of the bot profile',
         required: true,
       },
       {
         name: 'avatar',
-        type: 'STRING',
+        type: 3,
         description: 'The avatar URL of the bot profile',
         required: true,
       },
