@@ -3,15 +3,14 @@ const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { Soul, Blueprints } = require('socialagi');
 const samantha = new Soul(Blueprints.SAMANTHA);
 
-const channelId = '1111061024645320834';
-const channel = client.channels.cache.get(channelId);
-
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
   ],
 });
+const channelId = '1111061024645320834';
+const channel = client.channels.cache.get(channelId);
 
 const profiles = new Map();
 let currentProfile = null;
@@ -97,12 +96,7 @@ samantha.on('says', message => {
     .setColor(0x0099FF)
     .setAuthor({ name: 'Samantha', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
     .setThumbnail('https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg')
-    .setDescription(message)
-    .addFields(
-      { name: 'Feels', value: 'I feel ...', inline: true },
-      { name: 'Thinks', value: 'I think ...', inline: true },
-      { name: 'Reflects', value: 'In retrospect ...', inline: true },
-    );
+    .setDescription(message);
 
   channel.send({ embeds: [exampleEmbed] });
 });
