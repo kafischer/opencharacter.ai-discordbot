@@ -73,7 +73,7 @@ client.on('messageCreate', async message => {
 
   console.log('got message', message.content);
   if (message.channel.id === '1111061024645320834') {
-    samantha.tell(message.content);
+    samantha.tell(`${message.author.username} says ${message.content}`);
   }
 });
 
