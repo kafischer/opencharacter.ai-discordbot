@@ -89,4 +89,4 @@ samantha.on('says', message => {
   channel.send({ embeds: [exampleEmbed] });
 });
 
-client.login('MTExMTA0NzQxOTM2NzUzNDcxMw.G2PiRv.uxo1RHoLPq95y1i7tbRtUFzcqfAe8Se2WM5ZpU');
+client.login(process.env.DISCORD_TOKEN);
