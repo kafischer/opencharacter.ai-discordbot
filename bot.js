@@ -95,7 +95,7 @@ client.on('messageCreate', async message => {
 samantha.on('says', message => {
   const exampleEmbed = new EmbedBuilder()
     .setColor(0x0099FF)
-    .setAuthor({ name: 'Samantha 2.0', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
+    .setAuthor({ name: 'Samantha', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
     .setThumbnail('https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg')
     .setDescription(message)
     .addFields(
