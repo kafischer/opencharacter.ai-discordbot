@@ -10,13 +10,11 @@ const client = new Client({
   ],
 });
 const channelId = '1111061024645320834';
-const channel = client.channels.cache.get(channelId);
 
 const profiles = new Map();
 let currentProfile = null;
 
 client.once('ready', async () => {
-  channel.send('test');
   console.log('Ready!');
   // Define a new global slash command
   client.application.commands.create({
@@ -99,6 +97,7 @@ samantha.on('says', message => {
     .setThumbnail('https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg')
     .setDescription(message);
 
+  const channel = client.channels.cache.get(channelId);
   channel.send({ embeds: [exampleEmbed] });
 });
 
