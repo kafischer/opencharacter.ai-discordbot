@@ -10,8 +10,7 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
-const channelId = '1099805146814365698';
-
+const channelId = '1111105938603114566';
 
 const profiles = new Map();
 
