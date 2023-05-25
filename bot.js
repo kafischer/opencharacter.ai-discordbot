@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { Soul, Blueprints } = require('socialagi');
+const { Soul, Blueprints, LanguageProcessor } = require('socialagi');
 
 const samantha = new Soul(Blueprints.SAMANTHA);
 const page = new Soul(Blueprints.PAGE);
@@ -33,74 +33,90 @@ const client = new Client({
   ],
 });
 
+let currentSandboxSoul = null;
 const profiles = new Map();
+const sandboxChannelId = '1111406298836246628';
+const guildId = '1099805146814365698';
 
 client.once('ready', async () => {
   console.log('Ready!');
-  // Define a new global slash command
-  client.application.commands.create({
+  
+  // const guild = client.guilds.cache.get(guildId);
+  // let commands = await guild.commands.fetch();
+  // await commands.map(async (command) => {
+  //   try {
+  //     await guild.commands.delete(command.id);
+  //     console.log(`Deleted command ${command.name}`);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // });
+  // commands = await client.application?.commands.fetch();
+  // await commands.map(async (command) => {
+  //   try {
+  //     await client.application?.commands.delete(command.id);
+  //     console.log(`Deleted command ${command.name}`);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // });
+    
+  await client.application.commands.create({
     name: 'create',
     description: 'Creates a new soul',
     options: [
       {
         name: 'name',
         type: 3,
-        description: 'The name of the bot profile',
+        description: 'Unique name of the soul',
         required: true,
       },
       {
         name: 'essence',
         type: 3,
-        description: 'The essence of the bot profile',
+        description: 'The essence of the soul',
         required: true,
       },
       {
         name: 'personality',
         type: 3,
-        description: 'The personality of the bot profile',
+        description: 'The personality of the soul',
         required: true,
       },
       {
         name: 'avatar',
         type: 3,
-        description: 'The avatar URL of the bot profile',
+        description: 'The avatar URL of the soul',
         required: true,
       },
     ],
   });
+  console.log('Created /create');
 
-  console.log('Slash command /create has been created');
+  await client.application.commands.create({
+    name: 'list',
+    description: 'List custom souls',
+    options: [],
+  });
+  console.log('Created /list');
+
+  await client.application.commands.create({
+    name: 'activate',
+    description: 'Activate custom soul',
+    options: [
+      {
+        name: 'name',
+        type: 3,
+        description: 'The name of the soul',
+        required: true,
+      },
+    ],
+  });
+  console.log('Created /activate');
+
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if (!interaction.isCommand()) return;
-
-  const { commandName } = interaction;
-
-  if (commandName === 'create') {
-    const name = interaction.options.getString('name');
-    const essence = interaction.options.getString('essence');
-    const personality = interaction.options.getString('personality');
-    const avatar = interaction.options.getString('avatar');
-
-    profiles.set(name, { name, essence, personality, avatar });
-
-    await interaction.reply(`Profile ${name} created!`);
-  }
-});
-
-client.on('messageCreate', async message => {
-  if (message.author.bot) return;
-
-  console.log('got message', message.content, message.type);
-  if (Object.keys(channelToSoul).includes(message.channel.id) && message.type === 0) {
-    channelToSoul[message.channel.id].soul.tell(`${message.author.username} says ${message.content}`);
-  }
-});
-
-for (const channelId of Object.keys(channelToSoul)) {
-  const soul = channelToSoul[channelId].soul;
-  const profileImg = channelToSoul[channelId].profileImg;
+function registerSoul(soul, profileImg, channelId) {
   soul.on('says', message => {
     console.warn('SEND MESSAGE for', soul.blueprint.name, message);
     const exampleEmbed = new EmbedBuilder()
@@ -113,5 +129,59 @@ for (const channelId of Object.keys(channelToSoul)) {
     channel.send({ embeds: [exampleEmbed] });
   });
 }
+
+
+for (const channelId of Object.keys(channelToSoul)) {
+  const soul = channelToSoul[channelId].soul;
+  const profileImg = channelToSoul[channelId].profileImg;
+  registerSoul(soul, profileImg, channelId);
+}
+
+client.on('interactionCreate', async (interaction) => {
+  if (!interaction.isCommand()) return;
+
+  const { commandName } = interaction;
+
+  if (commandName === 'create') {
+    const name = interaction.options.getString('name');
+    const essence = interaction.options.getString('essence');
+    const personality = interaction.options.getString('personality');
+    const avatar = interaction.options.getString('avatar');
+
+    const soul = new Soul({name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo});
+    profiles.set(name, soul);
+    registerSoul(soul, avatar, sandboxChannelId);
+    currentSandboxSoul = soul;
+
+    await interaction.reply(`@@@@@@@@@@@@@@@@@@@@@@@@
+@ WARNING: SOUL STORE IS CURRENTLY TEMPORARY @
+@@@@@@@@@@@@@@@@@@@@@@@@
+
+✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
+      Soul of ${name} is born! 
+✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨`);
+  } else if (commandName === 'list') {
+    const found = [...profiles.keys()];
+    await interaction.reply(`Found ${found.length} souls: ${found}`);
+  } else if (commandName === 'activate') {
+    const name = interaction.options.getString('name');
+    currentSandboxSoul = profiles.get(name);
+    await interaction.reply(`Activated ${name}`);
+  }
+});
+
+const DEFAULT_MSG = 0;
+client.on('messageCreate', async message => {
+  if (message.author.bot) return;
+
+  console.log('got message', message.content, message.type);
+  if (Object.keys(channelToSoul).includes(message.channel.id) && message.type === DEFAULT_MSG) {
+    message.channel.sendTyping();
+    channelToSoul[message.channel.id].soul.tell(`${message.author.username} says ${message.content}`);
+  }
+  if (currentSandboxSoul !== null && message.channel.id === sandboxChannelId && message.type === DEFAULT_MSG) {
+    currentSandboxSoul.tell(`${message.author.username} says ${message.content}`);
+  }
+});
 
 client.login(process.env.DISCORD_TOKEN);
