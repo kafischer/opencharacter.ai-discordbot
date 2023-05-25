@@ -70,7 +70,7 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 client.on('messageCreate', async message => {
-  if (message.author.bot) return;
+  if (message.author.bot || message.channel.type !== 'GUILD_TEXT') return;
 
   console.log('got message', message.content);
   if (message.channel.id === channelId) {
