@@ -72,17 +72,17 @@ client.on('messageCreate', async message => {
 
   console.log('got message', message);
   if (message.channel.id === '1111061024645320834') {
-    if (message.content.startsWith('!')) {
-      const name = message.content.slice(1);
-
-      if (profiles.has(name)) {
-        currentProfile = profiles.get(name);
-        await message.reply(`Profile switched to ${name}!`);
-      }
-      else if (currentProfile) {
-        return;
-      }
-    }
+    // if (message.content.startsWith('!')) {
+    //   const name = message.content.slice(1);
+    //
+    //   if (profiles.has(name)) {
+    //     currentProfile = profiles.get(name);
+    //     await message.reply(`Profile switched to ${name}!`);
+    //   }
+    //   else if (currentProfile) {
+    //     return;
+    //   }
+    // }
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099FF)
       .setTitle('Some title')
