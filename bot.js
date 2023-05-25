@@ -1,5 +1,11 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
+const { Soul, Blueprints } = require('socialagi');
+const samantha = new Soul(Blueprints.SAMANTHA);
+
+const channelId = '1111061024645320834';
+const channel = client.channels.cache.get(channelId);
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -70,6 +76,7 @@ client.on('messageCreate', async message => {
 
   console.log('got message', message);
   if (message.channel.id === '1111061024645320834') {
+    samantha.tell(message);
     // if (message.content.startsWith('!')) {
     //   const name = message.content.slice(1);
     //
@@ -81,19 +88,22 @@ client.on('messageCreate', async message => {
     //     return;
     //   }
     // }
-    const exampleEmbed = new EmbedBuilder()
-      .setColor(0x0099FF)
-      .setAuthor({ name: 'Samantha 2.9', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
-      .setThumbnail('https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg')
-      .setDescription('Hello')
-      .addFields(
-        { name: 'Feels', value: 'I feel ...', inline: true },
-        { name: 'Thinks', value: 'I think ...', inline: true },
-        { name: 'Reflects', value: 'In retrospect ...', inline: true },
-      );
-
-    message.channel.send({ embeds: [exampleEmbed] });
   }
+});
+
+samantha.on('says', message => {
+  const exampleEmbed = new EmbedBuilder()
+    .setColor(0x0099FF)
+    .setAuthor({ name: 'Samantha 2.0', iconURL: 'https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg' })
+    .setThumbnail('https://i2-prod.dailystar.co.uk/incoming/article24246568.ece/ALTERNATES/s1200c/1_JS236355871.jpg')
+    .setDescription(message)
+    .addFields(
+      { name: 'Feels', value: 'I feel ...', inline: true },
+      { name: 'Thinks', value: 'I think ...', inline: true },
+      { name: 'Reflects', value: 'In retrospect ...', inline: true },
+    );
+
+  channel.send({ embeds: [exampleEmbed] });
 });
 
 client.login('MTExMTA0NzQxOTM2NzUzNDcxMw.G2PiRv.uxo1RHoLPq95y1i7tbRtUFzcqfAe8Se2WM5ZpU');
