@@ -16,6 +16,7 @@ const profiles = new Map();
 let currentProfile = null;
 
 client.once('ready', async () => {
+  channel.send('test');
   console.log('Ready!');
   // Define a new global slash command
   client.application.commands.create({
