@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits } = require('discord.js');
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -12,11 +13,10 @@ let currentProfile = null;
 client.once('ready', () => {
   console.log('Ready!');
 
-
   // Define a new global slash command
   client.application.commands.create({
     name: 'create',
-    description: 'Creates a new bot profile',
+    description: 'Creates a new soul',
     options: [
       {
         name: 'name',
