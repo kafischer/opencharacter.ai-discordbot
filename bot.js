@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
 const client = new Client({
   intents: [
@@ -10,8 +10,10 @@ const client = new Client({
 const profiles = new Map();
 let currentProfile = null;
 
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log('Ready!');
+  await client.user.setUsername('Open Souls');
+  await client.user.setAvatar(client.user.displayAvatarURL());
 
   // Define a new global slash command
   client.application.commands.create({
@@ -81,10 +83,25 @@ client.on('messageCreate', async message => {
         return;
       }
     }
-    await client.user.setUsername(currentProfile.name);
-    const avatar = currentProfile.avatar;
-    await client.user.setAvatar(avatar);
-    message.channel.send('Hello!');
+    const exampleEmbed = new EmbedBuilder()
+      .setColor(0x0099FF)
+      .setTitle('Some title')
+      .setURL('https://discord.js.org/')
+      .setAuthor({ name: 'Some name', iconURL: 'https://i.imgur.com/AfFp7pu.png', url: 'https://discord.js.org' })
+      .setDescription('Some description here')
+      .setThumbnail('https://i.imgur.com/AfFp7pu.png')
+      .addFields(
+        { name: 'Regular field title', value: 'Some value here' },
+        { name: '\u200B', value: '\u200B' },
+        { name: 'Inline field title', value: 'Some value here', inline: true },
+        { name: 'Inline field title', value: 'Some value here', inline: true },
+      )
+      .addFields({ name: 'Inline field title', value: 'Some value here', inline: true })
+      .setImage('https://i.imgur.com/AfFp7pu.png')
+      .setTimestamp()
+      .setFooter({ text: 'Some footer text here', iconURL: 'https://i.imgur.com/AfFp7pu.png' });
+
+    message.channel.send({ embeds: [exampleEmbed] });
   }
 });
 
