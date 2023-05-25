@@ -12,6 +12,7 @@ let currentProfile = null;
 client.once('ready', () => {
   console.log('Ready!');
 
+
   // Define a new global slash command
   client.application.commands.create({
     name: 'create',
