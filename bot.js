@@ -17,8 +17,6 @@ let currentProfile = null;
 
 client.once('ready', async () => {
   console.log('Ready!');
-  console.log('WTF', process.env.OPENAI_API_KEY);
-
   // Define a new global slash command
   client.application.commands.create({
     name: 'create',
@@ -76,7 +74,7 @@ client.on('messageCreate', async message => {
 
   console.log('got message', message);
   if (message.channel.id === '1111061024645320834') {
-    samantha.tell(message);
+    samantha.tell(message.content);
     // if (message.content.startsWith('!')) {
     //   const name = message.content.slice(1);
     //
