@@ -17,6 +17,7 @@ let currentProfile = null;
 
 client.once('ready', async () => {
   console.log('Ready!');
+  console.log('WTF', process.env.OPENAI_API_KEY);
 
   // Define a new global slash command
   client.application.commands.create({
