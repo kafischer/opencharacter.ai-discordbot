@@ -74,18 +74,6 @@ client.on('messageCreate', async message => {
   console.log('got message', message.content);
   if (message.channel.id === '1111061024645320834') {
     samantha.tell(message.content);
-    // if (message.content.startsWith('!')) {
-    //   const name = message.content.slice(1);
-    //
-    //   if (profiles.has(name)) {
-    //     currentProfile = profiles.get(name);
-    //     await message.reply(`Profile switched to ${name}!`);
-    //   }
-    //   else if (currentProfile) {
-    //     return;
-    //   }
-    // }
-
   }
 });
 
