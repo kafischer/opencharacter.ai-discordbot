@@ -1,29 +1,5 @@
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { Soul, Blueprints, LanguageProcessor } = require('socialagi');
-
-const samantha = new Soul(Blueprints.SAMANTHA);
-const page = new Soul(Blueprints.PAGE);
-const reggie = new Soul(Blueprints.REGGIE);
-const dustin = new Soul(Blueprints.DUSTIN);
-
-const channelToSoul = {
-  '1111126482912284723': {
-    soul: dustin,
-    profileImg: 'https://cdn.discordapp.com/attachments/1103405119766282491/1111125819847352330/dusty.png'
-  },
-  '1111126681994932244': {
-    soul: samantha,
-    profileImg: 'https://cdn.discordapp.com/attachments/1103405119766282491/1111129745271296030/Screen_Shot_2023-05-24_at_11.12.22_PM.png'
-  },
-  '1111126931916718090': {
-    soul: page,
-    profileImg: 'https://cdn.discordapp.com/attachments/1103405119766282491/1111127124091342868/page.png'
-  },
-  '1111127239577309266': {
-    soul: reggie,
-    profileImg: 'https://cdn.discordapp.com/attachments/1103405119766282491/1111126842125066250/reggie.png'
-  },
-};
+const { Soul, LanguageProcessor } = require('socialagi');
 
 const client = new Client({
   intents: [
@@ -33,10 +9,7 @@ const client = new Client({
   ],
 });
 
-let currentSandboxSoul = null;
-const profiles = new Map();
-const sandboxChannelId = '1111406298836246628';
-const guildId = '1099805146814365698';
+const souls = new Map();
 
 client.once('ready', async () => {
   console.log('Ready!');
@@ -60,10 +33,10 @@ client.once('ready', async () => {
   //     console.error(err);
   //   }
   // });
-    
+
   await client.application.commands.create({
     name: 'create',
-    description: 'Creates a new soul',
+    description: 'Creates a new soul in the current channel',
     options: [
       {
         name: 'name',
@@ -101,18 +74,32 @@ client.once('ready', async () => {
   console.log('Created /list');
 
   await client.application.commands.create({
-    name: 'activate',
-    description: 'Activate custom soul',
+    name: 'disintegrate',
+    description: 'Disintegrate a soul',
     options: [
       {
         name: 'name',
         type: 3,
-        description: 'The name of the soul',
+        description: 'Unique name of the soul',
         required: true,
       },
     ],
   });
-  console.log('Created /activate');
+  console.log('Created /disintegrate');
+
+  await client.application.commands.create({
+    name: 'whois',
+    description: 'Inspect a soul',
+    options: [
+      {
+        name: 'name',
+        type: 3,
+        description: 'Unique name of the soul',
+        required: true,
+      },
+    ],
+  });
+  console.log('Created /whois');
 
 });
 
@@ -130,47 +117,66 @@ function registerSoul(soul, profileImg, channelId) {
   });
 }
 
-
-for (const channelId of Object.keys(channelToSoul)) {
-  const soul = channelToSoul[channelId].soul;
-  const profileImg = channelToSoul[channelId].profileImg;
-  registerSoul(soul, profileImg, channelId);
-}
-
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isCommand()) return;
 
   const { commandName } = interaction;
 
+  const channelId = interaction.channelId;
+  const channel = client.channels.cache.get(channelId);
   if (commandName === 'create') {
     const name = interaction.options.getString('name');
-    const essence = interaction.options.getString('essence');
-    const personality = interaction.options.getString('personality');
-    const avatar = interaction.options.getString('avatar');
-
-    const soul = new Soul({name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo});
-    profiles.set(name.toLowerCase(), soul);
-    registerSoul(soul, avatar, sandboxChannelId);
-    currentSandboxSoul = soul;
-
-    await interaction.reply(`@@@@@@@@@@@@@@@@@@@@@@@@
-@ WARNING: SOUL STORE IS CURRENTLY TEMPORARY @
-@@@@@@@@@@@@@@@@@@@@@@@@
-
-✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨
-      Soul of ${name} is born! 
-✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨✨`);
-  } else if (commandName === 'list') {
-    const found = [...profiles.keys()];
-    await interaction.reply(`Found ${found.length} souls: ${found}`);
-  } else if (commandName === 'activate') {
-    const name = interaction.options.getString('name');
-    const found = [...profiles.keys()].map(p => p.toLowerCase());
+    const found = [...souls.keys()];
     if (found.includes(name)) {
-      currentSandboxSoul = profiles.get(name.toLowerCase());
-      await interaction.reply(`Activated ${name}`);
+      const existingChannelId = souls.get(name).channelId;
+      const existingChannel = client.channels.cache.get(existingChannelId);
+      await interaction.reply(`❗️ Soul of **${name}** exists in ${existingChannel}`);
     } else {
-      await interaction.reply(`No soul ${name} found. Use /create to create their soul.`);
+      const essence = interaction.options.getString('essence');
+      const personality = interaction.options.getString('personality');
+      const avatar = interaction.options.getString('avatar');
+
+      const soul = new Soul({name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo});
+      souls.set(name.toLowerCase(), {soul, channelId});
+
+      registerSoul(soul, avatar, channelId);
+
+      await interaction.reply(`✨
+✨✨
+  ✨✨✨
+    ✨✨✨✨✨
+         ✨✨✨✨✨✨✨✨
+                ✨ Soul of **${name}** is born into ${channel}!`);
+    }
+  } else if (commandName === 'list') {
+    const found = [...souls.keys()].filter(name => souls.get(name).channelId === channelId);
+    await interaction.reply(`✨ Found ${found.length} souls: ${found.map(n => `**${n}**`).join(', ')} in this channel`);
+  } else if (commandName === 'disintegrate') {
+    const name = interaction.options.getString('name');
+    const found = [...souls.keys()];
+    if (found.includes(name)) {
+      souls.delete(name);
+      await interaction.reply(`🧨
+🧨
+🧨
+🧨
+💥 Disintegrated soul of **${name}**`);
+    } else {
+      await interaction.reply('❗️ No soul to disintegrate');
+    }
+  } else if (commandName === 'whois') {
+    const name = interaction.options.getString('name');
+    const found = [...souls.keys()];
+    if (found.includes(name)) {
+      const soul = souls.get(name).soul;
+      const {essence, personality} = soul.blueprint;
+      await interaction.reply(`✨ Soul of **${name}**
+
+🪄 **Essence**: ${essence}
+
+💫 **Personality**: ${personality}`);
+    } else {
+      await interaction.reply('❗️ No soul to inspect');
     }
   }
 });
@@ -181,25 +187,14 @@ client.on('messageCreate', async message => {
 
   console.log('got message', message.content, message.type);
   if (message.mentions.users.size > 0) return;
-  if (Object.keys(channelToSoul).includes(message.channel.id) && message.type === DEFAULT_MSG) {
-    message.channel.sendTyping();
-    channelToSoul[message.channel.id].soul.tell(`${message.author.username} says ${message.content}`);
-  }
-  if (message.channel.id === sandboxChannelId && message.type === DEFAULT_MSG) {
-    const found = [...profiles.keys()];
-    let anyNameFound = false;
+
+  if (message.type === DEFAULT_MSG) {
+    const found = [...souls.keys()].filter(name => souls.get(name).channelId === message.channelId);
     for (const name of found) {
-      if (message.content.toLowerCase().includes(name.toLowerCase())) {
-        anyNameFound = true;
-        message.channel.sendTyping();
-        profiles.get(name.toLowerCase()).tell(`${message.author.username} says ${message.content}`);
-      }
-    }
-    if (currentSandboxSoul !== null && !anyNameFound) {
       message.channel.sendTyping();
-      currentSandboxSoul.tell(`${message.author.username} says ${message.content}`);
+      souls.get(name.toLowerCase()).soul.tell(`${message.author.username} says ${message.content}`);
     }
   }
 });
 
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN_OPEN_SOULS);
