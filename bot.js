@@ -149,7 +149,7 @@ client.on('interactionCreate', async (interaction) => {
     const avatar = interaction.options.getString('avatar');
 
     const soul = new Soul({name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo});
-    profiles.set(name, soul);
+    profiles.set(name.toLowerCase(), soul);
     registerSoul(soul, avatar, sandboxChannelId);
     currentSandboxSoul = soul;
 
@@ -165,8 +165,13 @@ client.on('interactionCreate', async (interaction) => {
     await interaction.reply(`Found ${found.length} souls: ${found}`);
   } else if (commandName === 'activate') {
     const name = interaction.options.getString('name');
-    currentSandboxSoul = profiles.get(name);
-    await interaction.reply(`Activated ${name}`);
+    const found = [...profiles.keys()].map(p => p.toLowerCase());
+    if (found.includes(name)) {
+      currentSandboxSoul = profiles.get(name.toLowerCase());
+      await interaction.reply(`Activated ${name}`);
+    } else {
+      await interaction.reply(`No soul ${name} found. Use /create to create their soul.`);
+    }
   }
 });
 
@@ -180,8 +185,20 @@ client.on('messageCreate', async message => {
     message.channel.sendTyping();
     channelToSoul[message.channel.id].soul.tell(`${message.author.username} says ${message.content}`);
   }
-  if (currentSandboxSoul !== null && message.channel.id === sandboxChannelId && message.type === DEFAULT_MSG) {
-    currentSandboxSoul.tell(`${message.author.username} says ${message.content}`);
+  if (message.channel.id === sandboxChannelId && message.type === DEFAULT_MSG) {
+    const found = [...profiles.keys()];
+    let anyNameFound = false;
+    for (const name of found) {
+      if (message.content.toLowerCase().includes(name.toLowerCase())) {
+        anyNameFound = true;
+        message.channel.sendTyping();
+        profiles.get(name.toLowerCase()).tell(`${message.author.username} says ${message.content}`);
+      }
+    }
+    if (currentSandboxSoul !== null && !anyNameFound) {
+      message.channel.sendTyping();
+      currentSandboxSoul.tell(`${message.author.username} says ${message.content}`);
+    }
   }
 });
 
