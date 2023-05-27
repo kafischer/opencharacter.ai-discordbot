@@ -1,6 +1,22 @@
 const { Client, EmbedBuilder } = require('discord.js');
 const { Soul, LanguageProcessor } = require('socialagi');
-const { GatewayIntentBits, ChannelType, ApplicationCommandOptionType, PermissionFlagsBits, MessageType } = require('discord-api-types/v10');
+const { GatewayDispatchEvents, GatewayIntentBits, ChannelType, ApplicationCommandOptionType, PermissionFlagsBits, MessageType } = require('discord-api-types/v10');
+
+const { initializeApp } = require('firebase/app');
+const { getFirestore, setDoc, doc, getDoc, deleteField } = require('firebase/firestore');
+
+const firebaseConfig = {
+  apiKey: process.env.OPENSOULS_DISCORD_FB_APIKEY,
+  authDomain: `${process.env.OPENSOULS_DISCORD_FB_DOMAIN}.firebaseapp.com`,
+  projectId: process.env.OPENSOULS_DISCORD_FB_DOMAIN,
+  storageBucket: `${process.env.OPENSOULS_DISCORD_FB_DOMAIN}.appspot.com`,
+  messagingSenderId: process.env.OPENSOULS_DISCORD_FB_SENDERID,
+  appId: process.env.OPENSOULS_DISCORD_FB_APPID,
+  measurementId: process.env.OPENSOULS_DISCORD_FB_MEASID
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const client = new Client({
   intents: [
@@ -14,7 +30,21 @@ const souls = new Map();
 const category = '💫 soul chat';
 
 client.once('ready', async () => {
-  console.log('Ready!');
+  console.log('Configuring ...');
+  
+  console.log('Loading souls');
+  const soulRecords = await getDoc(doc(db, 'souls', 'record'));
+  const soulsData = soulRecords.data() || {};
+  const names = Object.keys(soulsData);
+  console.log(`=> found ${names.length || 0} souls`);
+  for (const name of names) {
+    console.log(`--> loading ${name}`);
+    const {blueprint, channelId, avatar} = soulsData[name];
+    const soul = new Soul(blueprint);
+    souls.set(name.toLowerCase(), {soul, channelId});
+    registerSoul(soul, avatar, channelId);
+  }      
+  console.log('Souls loaded');
   
   // const guild = client.guilds.cache.get(guildId);
   // let commands = await guild.commands.fetch();
@@ -172,11 +202,11 @@ client.on('interactionCreate', async (interaction) => {
       const personality = interaction.options.getString('personality');
       const avatar = interaction.options.getString('avatar');
 
-      const soul = new Soul({name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo});
+      const blueprint = {name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo};
+      const soul = new Soul(blueprint);
+      await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
       souls.set(name.toLowerCase(), {soul, channelId});
-
       registerSoul(soul, avatar, channelId);
-
 
       await interaction.reply(`✨
 ✨✨
@@ -205,6 +235,7 @@ client.on('interactionCreate', async (interaction) => {
     const found = [...souls.keys()];
     if (found.includes(name)) {
       souls.delete(name);
+      await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: deleteField()}, {merge: true});
       await interaction.reply(`🧨
 🧨
 🧨

@@ -9,6 +9,7 @@
   "dependencies": {
     "discord-api-types": "^0.37.42",
     "discord.js": "^14.11.0",
+    "firebase": "^9.22.1",
     "socialagi": "^0.0.10"
   },
   "devDependencies": {
