@@ -1,5 +1,6 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+const { Client, EmbedBuilder } = require('discord.js');
 const { Soul, LanguageProcessor } = require('socialagi');
+const { GatewayIntentBits, ChannelType } = require('discord-api-types/v10');
 
 const client = new Client({
   intents: [
@@ -68,7 +69,7 @@ client.once('ready', async () => {
 
   await client.application.commands.create({
     name: 'list',
-    description: 'List custom souls',
+    description: 'List custom souls in this channel',
     options: [],
   });
   console.log('Created /list');
@@ -89,7 +90,7 @@ client.once('ready', async () => {
 
   await client.application.commands.create({
     name: 'whois',
-    description: 'Inspect a soul',
+    description: 'Inspect a soul in this channel',
     options: [
       {
         name: 'name',
@@ -100,6 +101,20 @@ client.once('ready', async () => {
     ],
   });
   console.log('Created /whois');
+
+  await client.application.commands.create({
+    name: 'newroom',
+    description: 'Create a new channel for chatting souls',
+    options: [
+      {
+        name: 'name',
+        type: 3,
+        description: 'Name of new room to appear under SOUL CHAT',
+        required: true,
+      },
+    ],
+  });
+  console.log('Created /newroom');
 
 });
 
@@ -178,6 +193,36 @@ client.on('interactionCreate', async (interaction) => {
 💫 **Personality**: ${personality}`);
     } else {
       await interaction.reply('❗️ No soul to inspect');
+    }
+  } else if (commandName === 'newroom') {
+    const guild = interaction.guild;
+    const category = '💫 soul chat';
+    let categoryChannel = guild.channels.cache.find(
+      channel => channel.type === ChannelType.GuildCategory && channel.name === category
+    );
+
+    if (categoryChannel) {
+      console.log(`Found category with id ${categoryChannel.id}`);
+    } else {
+      categoryChannel = await guild.channels.create({
+        name: category,
+        type: ChannelType.GuildCategory,
+        permissionOverwrites: [],
+      });
+    }
+  
+    const channelName = interaction.options.getString('name');
+    try {
+      const newChannel = await guild.channels.create({
+        name: channelName,
+        type: ChannelType.GuildText,
+        permissionOverwrites: [],
+        parent: categoryChannel.id,
+      });
+
+      await interaction.reply(`${newChannel} created successfullly`);
+    } catch (error) {
+      console.error('Error creating channel:', error);
     }
   }
 });
