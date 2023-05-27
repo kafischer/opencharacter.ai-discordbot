@@ -1,6 +1,6 @@
 const { Client, EmbedBuilder } = require('discord.js');
 const { Soul, LanguageProcessor } = require('socialagi');
-const { GatewayIntentBits, ChannelType } = require('discord-api-types/v10');
+const { GatewayIntentBits, ChannelType, ApplicationCommandOptionType } = require('discord-api-types/v10');
 
 const client = new Client({
   intents: [
@@ -11,6 +11,7 @@ const client = new Client({
 });
 
 const souls = new Map();
+const category = '💫 soul chat';
 
 client.once('ready', async () => {
   console.log('Ready!');
@@ -116,6 +117,20 @@ client.once('ready', async () => {
   });
   console.log('Created /newroom');
 
+  await client.application.commands.create({
+    name: 'destroyroom',
+    description: 'Create a new channel for chatting souls',
+    options: [
+      {
+        name: 'sure',
+        type: ApplicationCommandOptionType.Boolean,
+        description: 'blah',
+        required: true,
+      },
+    ],
+  });
+  console.log('Created /destroyroom');
+
 });
 
 function registerSoul(soul, profileImg, channelId) {
@@ -140,6 +155,11 @@ client.on('interactionCreate', async (interaction) => {
   const channelId = interaction.channelId;
   const channel = client.channels.cache.get(channelId);
   if (commandName === 'create') {
+    const user = interaction.user;
+    if (!channel.topic || !channel.topic.includes(user)) {
+      await interaction.reply('❗️ You can only create souls in channels you\'ve made through /newroom');
+      return;
+    }
     const name = interaction.options.getString('name');
     const found = [...souls.keys()];
     if (found.includes(name)) {
@@ -166,7 +186,13 @@ client.on('interactionCreate', async (interaction) => {
     }
   } else if (commandName === 'list') {
     const found = [...souls.keys()].filter(name => souls.get(name).channelId === channelId);
-    await interaction.reply(`✨ Found ${found.length} souls: ${found.map(n => `**${n}**`).join(', ')} in this channel`);
+    const guild = interaction.guild;
+    let categoryChannel = guild.channels.cache.find(
+      channel => channel.type === ChannelType.GuildCategory && channel.name === category
+    );
+    await interaction.reply(`💫 ${channel.parentId === categoryChannel ? channel.topic : 'A space managed by the admins'}
+
+✨ Found ${found.length} souls: ${found.map(n => `**${n}**`).join(', ')} in this channel`);
   } else if (commandName === 'disintegrate') {
     const name = interaction.options.getString('name');
     const found = [...souls.keys()];
@@ -212,17 +238,29 @@ client.on('interactionCreate', async (interaction) => {
     }
   
     const channelName = interaction.options.getString('name');
+    const user = interaction.user;
     try {
       const newChannel = await guild.channels.create({
         name: channelName,
         type: ChannelType.GuildText,
         permissionOverwrites: [],
         parent: categoryChannel.id,
+        topic: `A soul chat managed by ${user}`
       });
 
       await interaction.reply(`${newChannel} created successfullly`);
     } catch (error) {
       console.error('Error creating channel:', error);
+    }
+  } else if (commandName === 'destroyroom') {
+    const channelId = interaction.channelId;
+    const guild = interaction.guild;
+    const channel = client.channels.cache.get(channelId);
+    const user = interaction.user;
+    if (channel.topic && channel.topic.includes(user)) {
+      await guild.channels.delete(channelId);
+    } else {
+      await interaction.reply('❗ Error: you can only delete channels you\'ve created through /newroom');
     }
   }
 });
