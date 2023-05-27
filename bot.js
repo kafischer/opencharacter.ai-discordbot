@@ -141,6 +141,7 @@ client.on('interactionCreate', async (interaction) => {
 
       registerSoul(soul, avatar, channelId);
 
+
       await interaction.reply(`✨
 ✨✨
   ✨✨✨
