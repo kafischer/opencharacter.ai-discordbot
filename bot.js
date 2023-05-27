@@ -1,6 +1,6 @@
 const { Client, EmbedBuilder } = require('discord.js');
 const { Soul, LanguageProcessor } = require('socialagi');
-const { GatewayIntentBits, ChannelType, ApplicationCommandOptionType } = require('discord-api-types/v10');
+const { GatewayIntentBits, ChannelType, ApplicationCommandOptionType, PermissionFlagsBits, MessageType } = require('discord-api-types/v10');
 
 const client = new Client({
   intents: [
@@ -109,7 +109,7 @@ client.once('ready', async () => {
     options: [
       {
         name: 'name',
-        type: 3,
+        type: ApplicationCommandOptionType.String,
         description: 'Name of new room to appear under SOUL CHAT',
         required: true,
       },
@@ -156,7 +156,8 @@ client.on('interactionCreate', async (interaction) => {
   const channel = client.channels.cache.get(channelId);
   if (commandName === 'create') {
     const user = interaction.user;
-    if (!channel.topic || !channel.topic.includes(user)) {
+    const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    if ((!channel.topic || !channel.topic.includes(user)) && !isAdmin) {
       await interaction.reply('❗️ You can only create souls in channels you\'ve made through /newroom');
       return;
     }
@@ -190,10 +191,16 @@ client.on('interactionCreate', async (interaction) => {
     let categoryChannel = guild.channels.cache.find(
       channel => channel.type === ChannelType.GuildCategory && channel.name === category
     );
-    await interaction.reply(`💫 ${channel.parentId === categoryChannel ? channel.topic : 'A space managed by the admins'}
+    await interaction.reply(`💫 ${channel.parentId === categoryChannel ? channel.topic : 'A space managed by the **admins**'}
 
 ✨ Found ${found.length} souls: ${found.map(n => `**${n}**`).join(', ')} in this channel`);
   } else if (commandName === 'disintegrate') {
+    const user = interaction.user;
+    const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    if ((!channel.topic || !channel.topic.includes(user)) && !isAdmin) {
+      await interaction.reply('❗️ You can only disintegrate souls in channels you\'ve made through /newroom');
+      return;
+    }
     const name = interaction.options.getString('name');
     const found = [...souls.keys()];
     if (found.includes(name)) {
@@ -265,14 +272,13 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-const DEFAULT_MSG = 0;
 client.on('messageCreate', async message => {
   if (message.author.bot) return;
 
   console.log('got message', message.content, message.type);
   if (message.mentions.users.size > 0) return;
 
-  if (message.type === DEFAULT_MSG) {
+  if ([MessageType.Default, MessageType.UserJoin].includes(message.type)) {
     const found = [...souls.keys()].filter(name => souls.get(name).channelId === message.channelId);
     for (const name of found) {
       message.channel.sendTyping();
