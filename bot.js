@@ -41,30 +41,85 @@ client.once('ready', async () => {
     console.log(`--> loading ${name}`);
     const {blueprint, channelId, avatar} = soulsData[name];
     const soul = new Soul(blueprint);
-    souls.set(name.toLowerCase(), {soul, channelId});
+    souls.set(name.toLowerCase(), {soul, channelId, avatar});
     registerSoul(soul, avatar, channelId);
   }      
   console.log('Souls loaded');
-  
-  // const guild = client.guilds.cache.get(guildId);
-  // let commands = await guild.commands.fetch();
-  // await commands.map(async (command) => {
-  //   try {
-  //     await guild.commands.delete(command.id);
-  //     console.log(`Deleted command ${command.name}`);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // });
-  // commands = await client.application?.commands.fetch();
-  // await commands.map(async (command) => {
+
+  // const commands = await client.application?.commands.fetch();
+  // for (const command of commands) {
   //   try {
   //     await client.application?.commands.delete(command.id);
   //     console.log(`Deleted command ${command.name}`);
   //   } catch (err) {
   //     console.error(err);
   //   }
-  // });
+  // }
+
+  await client.application.commands.create({
+    name: 'refine',
+    description: 'Refine a soul by changing one of its properties',
+    options: [
+      {
+        name: 'essence',
+        type: 1,
+        description: 'Change the essence of the soul',
+        options: [
+          {
+            name: 'soul',
+            type: 3,
+            description: 'Unique name of the soul',
+            required: true,
+          },
+          {
+            name: 'new_essence',
+            type: 3,
+            description: 'The new essence of the soul',
+            required: true,
+          },
+        ],
+      },
+      {
+        name: 'personality',
+        type: 1,
+        description: 'Change the personality of the soul',
+        options: [
+          {
+            name: 'soul',
+            type: 3,
+            description: 'Unique name of the soul',
+            required: true,
+          },
+          {
+            name: 'new_personality',
+            type: 3,
+            description: 'The new personality of the soul',
+            required: true,
+          },
+        ],
+      },
+      {
+        name: 'avatar',
+        type: 1,
+        description: 'Change the avatar of the soul',
+        options: [
+          {
+            name: 'soul',
+            type: 3,
+            description: 'Unique name of the soul',
+            required: true,
+          },
+          {
+            name: 'new_avatar',
+            type: 3,
+            description: 'The new avatar URL of the soul',
+            required: true,
+          },
+        ],
+      },
+    ],
+  });
+  console.log('Created /refine');
 
   await client.application.commands.create({
     name: 'create',
@@ -205,7 +260,7 @@ client.on('interactionCreate', async (interaction) => {
       const blueprint = {name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo};
       const soul = new Soul(blueprint);
       await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
-      souls.set(name.toLowerCase(), {soul, channelId});
+      souls.set(name.toLowerCase(), {soul, channelId, avatar});
       registerSoul(soul, avatar, channelId);
 
       await interaction.reply(`✨
@@ -252,9 +307,9 @@ client.on('interactionCreate', async (interaction) => {
       const {essence, personality} = soul.blueprint;
       await interaction.reply(`✨ Soul of **${name}**
 
-🪄 **Essence**: ${essence}
+🪄 **Essence**: *${essence}*
 
-💫 **Personality**: ${personality}`);
+💫 **Personality**: *${personality}*`);
     } else {
       await interaction.reply('❗️ No soul to inspect');
     }
@@ -298,7 +353,75 @@ client.on('interactionCreate', async (interaction) => {
     if (channel.topic && channel.topic.includes(user)) {
       await guild.channels.delete(channelId);
     } else {
-      await interaction.reply('❗ Error: you can only delete channels you\'ve created through /newroom');
+      await interaction.reply('❗ Error: you can only delete channels you\'ve created in your /newroom \'s');
+    }
+  } else if (commandName === 'refine') {
+    const user = interaction.user;
+    const isAdmin = interaction.member.permissions.has(PermissionFlagsBits.Administrator);
+    if ((!channel.topic || !channel.topic.includes(user)) && !isAdmin) {
+      await interaction.reply('❗️ You can only refine souls in channels you\'ve made in your /newroom \'s');
+      return;
+    }
+    const name = interaction.options.getString('soul');
+
+    const found = [...souls.keys()];
+    if (found.includes(name)) {
+      const subCommand = interaction.options.getSubcommand();
+      if (subCommand === 'essence') {
+        const newEssence = interaction.options.getString('new_essence');
+        const oldSoul = souls.get(name.toLowerCase());
+        const avatar = oldSoul.avatar;
+        const blueprint = oldSoul.soul.blueprint;
+        const oldEssence = blueprint.essence;
+        blueprint.essence = newEssence;
+        souls.delete(name);
+        const soul = new Soul(blueprint);
+        souls.set(name.toLowerCase(), {soul, channelId, avatar});
+        registerSoul(soul, avatar, channelId);
+        await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
+        await interaction.reply(`
+🔧 Refined soul of **${name}**
+
+🪄 from **Essence**: *${oldEssence}*
+
+🪄 to **Essence**: *${newEssence}*`);
+      } else if (subCommand === 'personality') {
+        const newPersonality = interaction.options.getString('new_personality');
+        const oldSoul = souls.get(name.toLowerCase());
+        const avatar = oldSoul.avatar;
+        const blueprint = oldSoul.soul.blueprint;
+        const oldPersonality = blueprint.personality;
+        blueprint.personality = newPersonality;
+        souls.delete(name);
+        const soul = new Soul(blueprint);
+        souls.set(name.toLowerCase(), {soul, channelId, avatar});
+        registerSoul(soul, avatar, channelId);
+        await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
+        await interaction.reply(`
+🔧 Refined soul of **${name}**
+
+💫 from **Personality**: *${oldPersonality}*
+
+💫 to **Personality**: *${newPersonality}*`);
+      } else if (subCommand === 'avatar') {
+        const newAvatar = interaction.options.getString('new_avatar');
+        const oldSoul = souls.get(name.toLowerCase());
+        const blueprint = oldSoul.soul.blueprint;
+        const oldAvatar = oldSoul.avatar;
+        souls.delete(name);
+        const soul = new Soul(blueprint);
+        souls.set(name.toLowerCase(), {soul, channelId, avatar: newAvatar});
+        registerSoul(soul, newAvatar, channelId);
+        await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: {blueprint, channelId, avatar: newAvatar}}, {merge: true});
+        await interaction.reply(`
+🔧 Refined soul of **${name}**
+
+🖼 from **Avatar**: *${oldAvatar}*
+
+🖼 to **Avatar**: *${newAvatar}*`);
+      }
+    } else {
+      await interaction.reply('❗️ No soul to refine');
     }
   }
 });
