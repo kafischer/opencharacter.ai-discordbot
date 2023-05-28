@@ -24,7 +24,7 @@ async function create({interaction, channel, channelId, souls, client}) {
   } else {
     const found = [...souls.keys()].filter(name => souls.get(name).channelId === channelId);
     if (found.length > 0) {
-      await interaction.editReply('❗️ ERROR: Currently only one soul allowed per channel. Will fix within next few days!');
+      await interaction.reply('❗️ ERROR: Currently only one soul allowed per channel. Will fix within next few days!');
       return;
     }
     await interaction.deferReply();
