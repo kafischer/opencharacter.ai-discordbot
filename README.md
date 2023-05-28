@@ -1,5 +1,7 @@
 # Open Souls bot
 
+Watch Repo for doc updates to come soon.
+
 Uses the https://github.com/opensouls/SocialAGI library to create digital souls
 
 Discord link at http://souls.chat
