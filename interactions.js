@@ -200,7 +200,6 @@ async function update({interaction, client, souls, channel, channelId}) {
       let newAvatar = interaction.options.getString('new_avatar');
       const oldSoul = souls.get(name.toLowerCase());
       const blueprint = oldSoul.soul.blueprint;
-      const oldAvatar = oldSoul.avatar;
       souls.delete(name);
       const soul = new Soul(blueprint);
       if (newAvatar === null) {
@@ -329,3 +328,4 @@ module.exports = {
   update,
   refine
 };
+
