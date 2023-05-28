@@ -66,22 +66,26 @@ client.on('interactionCreate', async (interaction) => {
 
   const channelId = interaction.channelId;
   const channel = client.channels.cache.get(channelId);
-  if (commandName === 'create') {
-    await create({interaction, channel, channelId, souls, client});
-  } else if (commandName === 'list') {
-    await list({interaction, channel, channelId, souls, category});
-  } else if (commandName === 'disintegrate') {
-    await disintegrate({interaction, channel, souls});
-  } else if (commandName === 'whois') {
-    await whois({interaction, souls});
-  } else if (commandName === 'newroom') {
-    await newRoom({interaction});
-  } else if (commandName === 'destroyroom') {
-    await destroyRoom({interaction, client});
-  } else if (commandName === 'update') {
-    await update({interaction, client, souls, channel, channelId});
-  } else if (commandName === 'refine') {
-    await refine({client, interaction, souls, channel, channelId});
+  try {
+    if (commandName === 'create') {
+      await create({interaction, channel, channelId, souls, client});
+    } else if (commandName === 'list') {
+      await list({interaction, channel, channelId, souls, category});
+    } else if (commandName === 'disintegrate') {
+      await disintegrate({interaction, channel, souls});
+    } else if (commandName === 'whois') {
+      await whois({interaction, souls});
+    } else if (commandName === 'newroom') {
+      await newRoom({interaction});
+    } else if (commandName === 'destroyroom') {
+      await destroyRoom({interaction, client});
+    } else if (commandName === 'update') {
+      await update({interaction, client, souls, channel, channelId});
+    } else if (commandName === 'refine') {
+      await refine({client, interaction, souls, channel, channelId});
+    }
+  } catch (e) {
+    console.warn(e);
   }
 });
 
