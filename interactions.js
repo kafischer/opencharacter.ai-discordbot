@@ -1,9 +1,12 @@
 const {FS_DB: db} = require('./config');
+const {AttachmentBuilder} = require('discord.js');
 const { PermissionFlagsBits, ChannelType } = require('discord-api-types/v10');
 const { Soul, LanguageProcessor } = require('socialagi');
 const {setDoc, doc, deleteField } = require('firebase/firestore');
 const {refineSoul} = require('./lmProcessing');
 const {registerSoul} = require('./souls');
+const fetch = require('node-fetch');
+const {getImage} = require('./images');
 
 async function create({interaction, channel, channelId, souls, client}) {
   const user = interaction.user;
@@ -19,9 +22,20 @@ async function create({interaction, channel, channelId, souls, client}) {
     const existingChannel = client.channels.cache.get(existingChannelId);
     await interaction.reply(`❗️ Soul of **${name}** exists in ${existingChannel}`);
   } else {
+    const found = [...souls.keys()].filter(name => souls.get(name).channelId === channelId);
+    if (found.length > 0) {
+      await interaction.editReply('❗️ ERROR: Currently only one soul allowed per channel. Will fix within next few days!');
+      return;
+    }
+    await interaction.deferReply();
     const essence = interaction.options.getString('essence');
     const personality = interaction.options.getString('personality');
-    const avatar = interaction.options.getString('avatar');
+    let avatar = interaction.options.getString('avatar_url');
+    if (avatar === null) {
+      avatar = await getImage(`Profile image of ${name}, ${essence.slice(0, 1000)}`);
+    }
+    const imageBuffer = await (await fetch(avatar)).buffer();
+    const attachment = new AttachmentBuilder(imageBuffer, {name: `${name}.png`});
 
     const blueprint = {name, essence, personality, languageProcessor: LanguageProcessor.GPT_3_5_turbo};
     const soul = new Soul(blueprint);
@@ -29,12 +43,12 @@ async function create({interaction, channel, channelId, souls, client}) {
     souls.set(name.toLowerCase(), {soul, channelId, avatar});
     registerSoul(client, soul, avatar, channelId);
 
-    await interaction.reply(`✨
+    await interaction.editReply({content:`✨
 ✨✨
   ✨✨✨
     ✨✨✨✨✨
          ✨✨✨✨✨✨✨✨
-                ✨ Soul of **${name}** is born into ${channel}!`);
+                ✨ Soul of **${name}** is born into ${channel}!\n`, files: [attachment] });
   }
 }
 
@@ -56,11 +70,11 @@ async function disintegrate({interaction, channel, souls}) {
     await interaction.reply('❗️ You can only disintegrate souls in channels you\'ve made through /newroom');
     return;
   }
-  const name = interaction.options.getString('name');
+  const name = interaction.options.getString('name').toLowerCase();
   const found = [...souls.keys()];
   if (found.includes(name)) {
     souls.delete(name);
-    await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: deleteField()}, {merge: true});
+    await setDoc(doc(db, 'souls', 'record'), {[name]: deleteField()}, {merge: true});
     await interaction.reply(`🧨
 🧨
 🧨
@@ -182,12 +196,18 @@ async function update({interaction, client, souls, channel, channelId}) {
 
 💫 to **Personality**: *${newPersonality}*`);
     } else if (subCommand === 'avatar') {
-      const newAvatar = interaction.options.getString('new_avatar');
+      await interaction.deferReply();
+      let newAvatar = interaction.options.getString('new_avatar');
       const oldSoul = souls.get(name.toLowerCase());
       const blueprint = oldSoul.soul.blueprint;
       const oldAvatar = oldSoul.avatar;
       souls.delete(name);
       const soul = new Soul(blueprint);
+      if (newAvatar === null) {
+        newAvatar = await getImage(`Profile image of ${name}, ${blueprint.essence.slice(0, 1000)}`);
+      }
+      const imageBuffer = await (await fetch(newAvatar)).buffer();
+      const attachment = new AttachmentBuilder(imageBuffer, {name: `${name}.png`});
       souls.set(name.toLowerCase(), {soul, channelId, avatar: newAvatar});
       registerSoul(client, soul, newAvatar, channelId);
       await setDoc(doc(db, 'souls', 'record'), {
@@ -197,12 +217,10 @@ async function update({interaction, client, souls, channel, channelId}) {
           avatar: newAvatar
         }
       }, {merge: true});
-      await interaction.reply(`
+      await interaction.editReply({content:`
 🔧 Updated soul of **${name}**
 
-🖼 from **Avatar**: *${oldAvatar}*
-
-🖼 to **Avatar**: *${newAvatar}*`);
+🖼 to **Avatar**`, files: [attachment]});
     } else if (subCommand === 'name') {
       const newName = interaction.options.getString('new_name');
       const newNameKey = newName.toLowerCase();
@@ -271,11 +289,15 @@ async function refine({client, interaction, souls, channel, channelId}) {
     blueprint.personality = newPersonality;
     blueprint.essence = newEssence;
     const soul = new Soul(blueprint);
-    souls.set(name.toLowerCase(), {soul, channelId, avatar});
-    registerSoul(client, soul, avatar, channelId);
+    const newAvatar = await getImage(`Profile image of ${name}, ${newEssence.slice(0, 1000)}`);
+    souls.set(newName.toLowerCase(), {soul, channelId, avatar: newAvatar});
+    registerSoul(client, soul, newAvatar, channelId);
     await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: deleteField()}, {merge: true});
-    await setDoc(doc(db, 'souls', 'record'), {[newName.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
-    await interaction.editReply(`
+    await setDoc(doc(db, 'souls', 'record'), {[newName.toLowerCase()]: {blueprint, channelId, avatar: newAvatar}}, {merge: true});
+    const imageBuffer = await (await fetch(newAvatar)).buffer();
+    const attachment = new AttachmentBuilder(imageBuffer, {name: `${newName}.png`});
+
+    await interaction.editReply({content: `
 🔧 Refined soul of **${name}**
 
 🌟 from **Name**: *${name}*
@@ -289,7 +311,9 @@ async function refine({client, interaction, souls, channel, channelId}) {
 
 🪄 to **Essence**: *${newEssence}*
 
-💫 to **Personality**: *${newPersonality}*`);
+💫 to **Personality**: *${newPersonality}*
+
+🖼 to **Avatar**`,files: [attachment] });
   } else {
     await interaction.reply('❗️ No soul to refine');
   }

@@ -99,7 +99,7 @@ async function registerUpdate(client) {
             name: 'new_avatar',
             type: 3,
             description: 'The new avatar URL of the soul',
-            required: true,
+            required: false,
           },
         ],
       },
@@ -132,10 +132,10 @@ async function registerCreate(client) {
         required: true,
       },
       {
-        name: 'avatar',
+        name: 'avatar_url',
         type: 3,
         description: 'The avatar URL of the soul',
-        required: true,
+        required: false,
       },
     ],
   });

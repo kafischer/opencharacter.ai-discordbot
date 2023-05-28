@@ -49,13 +49,13 @@ client.once('ready', async () => {
 
   // await deleteAll(client);
 
+  await registerCreate(client);
   await registerRefine(client);
   await registerNewroom(client);
   await registerList(client);
   await registerUpdate(client);
   await registerDisintegrate(client);
   await registerDestroyroom(client);
-  await registerCreate(client);
   await registerWhois(client);
 });
 
