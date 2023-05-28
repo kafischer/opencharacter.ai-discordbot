@@ -481,7 +481,7 @@ client.on('messageCreate', async message => {
     const found = [...souls.keys()].filter(name => souls.get(name).channelId === message.channelId);
     for (const name of found) {
       message.channel.sendTyping();
-      souls.get(name.toLowerCase()).soul.tell(`${message.author.username} says ${message.content}`);
+      souls.get(name.toLowerCase()).soul.tell(`[${message.author.username}] :: ${message.content}`);
     }
   }
 });
