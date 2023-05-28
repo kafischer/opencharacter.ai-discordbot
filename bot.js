@@ -61,6 +61,25 @@ client.once('ready', async () => {
     description: 'Refine a soul by changing one of its properties',
     options: [
       {
+        name: 'name',
+        type: 1,
+        description: 'Change the essence of the soul',
+        options: [
+          {
+            name: 'soul',
+            type: 3,
+            description: 'Unique name of the soul',
+            required: true,
+          },
+          {
+            name: 'new_name',
+            type: 3,
+            description: 'The new name of the soul',
+            required: true,
+          },
+        ],
+      },
+      {
         name: 'essence',
         type: 1,
         description: 'Change the essence of the soul',
@@ -419,6 +438,32 @@ client.on('interactionCreate', async (interaction) => {
 🖼 from **Avatar**: *${oldAvatar}*
 
 🖼 to **Avatar**: *${newAvatar}*`);
+      } else if (subCommand === 'name') {
+        const newName = interaction.options.getString('new_name');
+        const newNameKey = newName.toLowerCase();
+        const found = [...souls.keys()];
+        if (found.includes(newNameKey)) {
+          const existingChannelId = souls.get(newNameKey).channelId;
+          const existingChannel = client.channels.cache.get(existingChannelId);
+          await interaction.reply(`❗️ Soul of **${newName}** exists in ${existingChannel}`);
+        } else {
+          const oldSoul = souls.get(name.toLowerCase());
+          const avatar = oldSoul.avatar;
+          const blueprint = oldSoul.soul.blueprint;
+          blueprint.name = newName;
+          souls.delete(name);
+          const soul = new Soul(blueprint);
+          souls.set(newName.toLowerCase(), {soul, channelId, avatar});
+          registerSoul(soul, avatar, channelId);
+          await setDoc(doc(db, 'souls', 'record'), {[name.toLowerCase()]: deleteField()}, {merge: true});
+          await setDoc(doc(db, 'souls', 'record'), {[newName.toLowerCase()]: {blueprint, channelId, avatar}}, {merge: true});
+          await interaction.reply(`
+🔧 Refined soul of **${name}**
+
+🌟 from **Name**: *${name}*
+
+🌟 to **Name**: *${newName}*`);
+        }
       }
     } else {
       await interaction.reply('❗️ No soul to refine');
