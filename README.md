@@ -58,8 +58,8 @@ Required env vars can be found in `config.js`
 
 ## Getting started
 
-(1) export all required environment vars in `config.js` - your discord app token and firebase tokens
-(2) `node bot.js`
+1. export all required environment vars in `config.js` - your discord app token and firebase tokens
+1. `node bot.js`
 
 And that's it!
 
