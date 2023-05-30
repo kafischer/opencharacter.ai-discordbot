@@ -54,6 +54,15 @@ Discord link at http://souls.chat
 
 The repo code is deployed to heroku, with firebase storage used for persisting souls.
 
+Required env vars can be found in `config.js`
+
+## Getting started
+
+(1) export all required environment vars in `config.js` - your discord app token and firebase tokens
+(2) `node bot.js`
+
+And that's it!
+
 ### Notes
 
 Uses the https://github.com/opensouls/SocialAGI library to create digital souls
