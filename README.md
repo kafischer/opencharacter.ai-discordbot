@@ -1,6 +1,6 @@
-# Open Souls bot
+# Open Character.AI bot
 
-<img width="653" alt="image" src="https://github.com/opensouls/opensouls-discordbot/assets/8204988/2a556a85-036e-4b80-bd67-dcfd8ed6a3f6">
+<img width="653" alt="241764865-2a556a85-036e-4b80-bd67-dcfd8ed6a3f6" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/d633eadd-a787-4aff-9f8c-3c528b430c0d">
 
 ## What is this?
 
@@ -8,7 +8,7 @@ This repo contains a discord bot that is like Character AI, but in your discord.
 
 `/create [params]`
 
-<img width="630" alt="image" src="https://github.com/opensouls/opensouls-discordbot/assets/8204988/c3152f40-3b8b-4c64-aa76-9919e6cd1303">
+<img width="635" alt="Screen Shot 2023-06-19 at 5 37 01 PM" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/bc4c28e2-6b31-4b98-ba8b-38e90781d022">
 
 ## Commands
 
@@ -16,23 +16,23 @@ Here's a list of all commands supported by the bot:
 
 `/create ...`
 
-Creates a digital soul in a channel
+Creates a character in a channel
 
 `/list ...`
 
-Lists the souls in a channel
+Lists the characters in a channel
 
 `/update ...`
 
-Changes a specific soul parameter
+Changes a specific character parameter
 
 `/disintegrate ...`
 
-Destroys a soul
+Destroys a character
 
 `/whois ...`
 
-Tells you about a soul
+Tells you about a character
 
 `/newroom ...`
 
@@ -40,15 +40,15 @@ Creates a new discord channel under the "Soul Chat", which can be managed by the
 
 `/refine ...`
 
-Alters a soul based on a target change, e.g. `/refine soul: robos refinement: an even more simple robot`
+Alters a character based on a target change, e.g. `/refine soul: robos refinement: an even more simple robot`
 
-<img width="725" alt="image" src="https://github.com/opensouls/opensouls-discordbot/assets/8204988/41f30edd-ff8f-42d6-b31a-772a7d646ad8">
+<img width="732" alt="Screen Shot 2023-06-19 at 5 36 32 PM" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/4ecfb3ed-d123-4817-9a72-4fae8dc39164">
 
 ## Come visit our discord!
 
 Discord link at http://souls.chat
 
-<img width="936" alt="image" src="https://github.com/opensouls/discordbot/assets/8204988/deb9717d-2d6a-4c02-80ac-b6b3626f39dd">
+<img width="854" alt="Screen Shot 2023-06-19 at 5 35 56 PM" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/2a7ea9d4-9647-4ccf-9072-d0478e435475">
 
 ## Technical stuff
 
