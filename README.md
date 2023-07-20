@@ -44,9 +44,7 @@ Alters a character based on a target change, e.g. `/refine soul: robos refinemen
 
 <img width="732" alt="Screen Shot 2023-06-19 at 5 36 32 PM" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/4ecfb3ed-d123-4817-9a72-4fae8dc39164">
 
-## Come visit our discord!
-
-Discord link at http://souls.chat
+## In action, deployed into a Discord
 
 <img width="854" alt="Screen Shot 2023-06-19 at 5 35 56 PM" src="https://github.com/opensouls/opencharacter.ai-discordbot/assets/8204988/2a7ea9d4-9647-4ccf-9072-d0478e435475">
 
