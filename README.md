@@ -61,6 +61,10 @@ Required env vars can be found in `config.js`
 
 And that's it!
 
+## Deployment into Discord
+
+Here's an [example tutorial](https://github.com/opensouls/samantha-discordbot) for deploying a socialagi-based bot into discord. The steps to follow are identical for this bot, plus adding channel management related permissions.
+
 ### Notes
 
 Uses the https://github.com/opensouls/SocialAGI library to create digital souls
